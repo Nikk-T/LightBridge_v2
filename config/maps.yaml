@@ -1,0 +1,17 @@
+unit_channel_map:
+  A101: [0,1,2]
+  A102: [3,4,5]
+  A103: [6,7,8,9]
+  B201: [120,121,122]
+
+floor_channel_map:
+  1: [0, 8]
+  2: [120, 132]
+  3: [240, 248]
+  4: [360, 366]
+
+unit_names:
+  A101: 'Apartment 101 - 1 Bed'
+  A102: 'Apartment 102 - 2 Bed'
+  A103: 'Apartment 103 - 3 Bed'
+  B201: 'Apartment 201 - 1 Bed'

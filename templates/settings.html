@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LightBridge — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:     #080c10;
+    --panel:  #0d1520;
+    --border: #1a2e44;
+    --accent: #00d4ff;
+    --text:   #c8dce8;
+    --muted:  #4a6478;
+    --green:  #32ff6a;
+    --amber:  #ffc832;
+    --red:    #ff3250;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Rajdhani', sans-serif; font-size: 15px;
+    min-height: 100vh;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* ── Header ── */
+  header {
+    position: relative; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(13,21,32,0.95);
+    backdrop-filter: blur(8px);
+  }
+  .logo { display: flex; align-items: center; gap: 14px; }
+  .logo-icon {
+    width: 36px; height: 36px; border: 2px solid var(--accent);
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .logo-icon::after {
+    content: ''; position: absolute; width: 14px; height: 14px;
+    background: var(--accent); border-radius: 50%;
+    box-shadow: 0 0 12px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(.85)} }
+  .logo-text { font-size: 22px; font-weight: 700; letter-spacing: 3px; color:#fff; text-transform: uppercase; }
+  .logo-text span { color: var(--accent); }
+
+  nav { display: flex; gap: 4px; }
+  .nav-link {
+    font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; text-decoration: none;
+    padding: 8px 18px; border-radius: 3px; border: 1px solid transparent;
+    color: var(--muted); transition: all 0.2s;
+  }
+  .nav-link:hover { color: var(--text); border-color: var(--border); }
+  .nav-link.active { color: var(--accent); border-color: var(--accent); background: rgba(0,212,255,0.06); }
+
+  /* ── Layout ── */
+  .page {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: 1fr 340px;
+    height: calc(100vh - 69px);
+  }
+
+  /* ── Preset grid ── */
+  .preset-area {
+    overflow-y: auto; padding: 28px;
+    border-right: 1px solid var(--border);
+  }
+
+  .area-heading {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+  }
+  .area-heading::after { content:''; flex:1; height:1px; background: var(--border); }
+
+  .preset-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+  }
+
+  /* ── Preset card ── */
+  .preset-card {
+    background: rgba(13,21,32,0.7);
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 18px;
+    cursor: pointer; transition: all 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .preset-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: var(--swatch);
+    transition: background 0.15s;
+  }
+  .preset-card:hover { border-color: var(--swatch); transform: translateY(-2px); }
+  .preset-card.active {
+    border-color: var(--swatch);
+    background: rgba(255,255,255,0.04);
+    box-shadow: 0 0 0 1px var(--swatch);
+  }
+
+  .card-top {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+  }
+  .swatch {
+    width: 36px; height: 36px; border-radius: 6px; flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--swatch);
+    transition: background 0.1s;
+  }
+  .preset-name {
+    font-size: 16px; font-weight: 700; letter-spacing: 1px; color: #fff;
+  }
+  .preset-hex {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; color: var(--muted); margin-top: 2px;
+    transition: color 0.15s;
+  }
+
+  /* ── Sliders ── */
+  .sliders { display: flex; flex-direction: column; gap: 10px; }
+  .slider-row { display: grid; grid-template-columns: 14px 1fr 38px; gap: 8px; align-items: center; }
+  .slider-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; font-weight: 700; text-align: center;
+  }
+  .slider-label.r { color: #ff6060; }
+  .slider-label.g { color: #60ff80; }
+  .slider-label.b { color: #6096ff; }
+
+  input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 4px; border-radius: 2px;
+    outline: none; cursor: pointer;
+    background: var(--track-color, var(--border));
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px;
+    border-radius: 50%; background: var(--thumb-color, #fff);
+    border: 2px solid var(--bg); cursor: pointer;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  }
+  .slider-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; color: var(--muted); text-align: right;
+  }
+
+  /* ── Right panel ── */
+  .side-panel {
+    display: flex; flex-direction: column;
+    background: rgba(13,21,32,0.6);
+    overflow: hidden;
+  }
+  .side-section {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .side-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .side-label::after { content:''; flex:1; height:1px; background: var(--border); }
+
+  /* Active preset summary */
+  #active-summary {
+    display: flex; align-items: center; gap: 14px;
+  }
+  #summary-swatch {
+    width: 48px; height: 48px; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: #000; flex-shrink: 0; transition: background 0.1s;
+  }
+  #summary-name {
+    font-size: 18px; font-weight: 700; color: #fff; letter-spacing: 1px;
+  }
+  #summary-rgb {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px; color: var(--muted); margin-top: 4px;
+  }
+  #no-selection {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px; color: var(--muted); font-style: italic;
+  }
+
+  /* Floor status list */
+  .floor-list { display: flex; flex-direction: column; gap: 6px; }
+  .floor-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 12px; border-radius: 4px;
+    border: 1px solid var(--border);
+    font-family: 'Share Tech Mono', monospace; font-size: 12px;
+  }
+  .floor-row-name { color: var(--text); }
+  .floor-status {
+    font-size: 10px; letter-spacing: 1px; padding: 2px 8px;
+    border-radius: 2px; text-transform: uppercase;
+  }
+  .floor-status.off   { background: rgba(255,50,50,0.1);  color: var(--red); }
+  .floor-status.lit   { background: rgba(50,255,100,0.1); color: var(--green); }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 8px; flex-direction: column; padding: 20px 24px; margin-top: auto; }
+  .btn {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text); font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; font-weight: 700; letter-spacing: 2px;
+    padding: 10px; border-radius: 4px; cursor: pointer;
+    text-transform: uppercase; transition: all 0.2s; width: 100%;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .btn.primary:hover:not(:disabled) { opacity: 0.85; }
+  .btn.danger { border-color: var(--red); color: var(--red); }
+  .btn.danger:hover { background: rgba(255,50,50,0.08); }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 999;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 5px; padding: 10px 18px;
+    font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--accent);
+    opacity: 0; pointer-events: none; transform: translateY(8px);
+    transition: all 0.25s;
+  }
+  #toast.show  { opacity: 1; transform: translateY(0); }
+  #toast.ok    { border-color: var(--green); color: var(--green); }
+  #toast.error { border-color: var(--red);   color: var(--red); }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon"></div>
+    <div class="logo-text">Light<span>Bridge</span></div>
+  </div>
+  <nav>
+    <a href="/"         class="nav-link">Dashboard</a>
+    <a href="/settings" class="nav-link active">Settings</a>
+  </nav>
+</header>
+
+<div class="page">
+
+  <!-- ── Preset grid ── -->
+  <div class="preset-area">
+    <div class="area-heading">Colour Presets</div>
+    <div class="preset-grid" id="preset-grid">
+      {% for name, rgb in colours.items() %}
+      {% set r, g, b = rgb[0], rgb[1], rgb[2] %}
+      {% set hex = '#%02x%02x%02x' % (r, g, b) %}
+      <div class="preset-card" id="card-{{ loop.index }}"
+           data-name="{{ name }}" data-r="{{ r }}" data-g="{{ g }}" data-b="{{ b }}"
+           style="--swatch: rgb({{ r }},{{ g }},{{ b }})"
+           onclick="selectPreset(this)">
+        <div class="card-top">
+          <div class="swatch" id="swatch-{{ loop.index }}"
+               style="background: rgb({{ r }},{{ g }},{{ b }})"></div>
+          <div>
+            <div class="preset-name">{{ name }}</div>
+            <div class="preset-hex" id="hex-{{ loop.index }}">{{ hex }} · {{ r }}, {{ g }}, {{ b }}</div>
+          </div>
+        </div>
+        <div class="sliders">
+          <div class="slider-row">
+            <span class="slider-label r">R</span>
+            <input type="range" min="0" max="255" value="{{ r }}"
+              style="--track-color:#3a1a1a; --thumb-color:#ff6060"
+              oninput="onSlider({{ loop.index }}, 'r', this.value)">
+            <span class="slider-val" id="rv-{{ loop.index }}">{{ r }}</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label g">G</span>
+            <input type="range" min="0" max="255" value="{{ g }}"
+              style="--track-color:#0d2a14; --thumb-color:#60ff80"
+              oninput="onSlider({{ loop.index }}, 'g', this.value)">
+            <span class="slider-val" id="gv-{{ loop.index }}">{{ g }}</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label b">B</span>
+            <input type="range" min="0" max="255" value="{{ b }}"
+              style="--track-color:#0d1a3a; --thumb-color:#6096ff"
+              oninput="onSlider({{ loop.index }}, 'b', this.value)">
+            <span class="slider-val" id="bv-{{ loop.index }}">{{ b }}</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ── Right panel ── -->
+  <div class="side-panel">
+
+    <div class="side-section">
+      <div class="side-label">Active Preset</div>
+      <div id="no-selection">No preset selected</div>
+      <div id="active-summary" style="display:none">
+        <div id="summary-swatch"></div>
+        <div>
+          <div id="summary-name"></div>
+          <div id="summary-rgb"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-section">
+      <div class="side-label">Floor Status</div>
+      <div class="floor-list">
+        {% for floor in floors %}
+        <div class="floor-row">
+          <span class="floor-row-name">Floor {{ floor }}</span>
+          <span class="floor-status off" id="floor-status-{{ floor }}">off</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn primary" id="btn-save" onclick="savePreset()" disabled>
+        💾 Save Preset to YAML
+      </button>
+      <button class="btn danger" onclick="doBlackout()">
+        ⬛ Blackout All Floors
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const FLOORS = {{ floors | tojson }};
+
+let activeIdx  = null;   // currently selected card index (1-based)
+let activeName = null;
+let activeRGB  = { r: 0, g: 0, b: 0 };
+
+// ── On page load: blackout floors 1-4 ──────────────────────
+window.addEventListener('load', async () => {
+  await reloadConfig();   // ensure bridge has latest maps before we start
+  await doBlackout();
+});
+
+// ── Select a preset card ────────────────────────────────────
+function selectPreset(card) {
+  document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+
+  activeIdx  = card.id.split('-')[1];
+  activeName = card.dataset.name;
+  activeRGB  = {
+    r: parseInt(card.dataset.r),
+    g: parseInt(card.dataset.g),
+    b: parseInt(card.dataset.b)
+  };
+
+  updateSummary();
+  highlightAllFloors(activeRGB.r, activeRGB.g, activeRGB.b);
+  document.getElementById('btn-save').disabled = false;
+}
+
+// ── Slider moved ────────────────────────────────────────────
+function onSlider(idx, channel, val) {
+  val = parseInt(val);
+  document.getElementById(`${channel}v-${idx}`).textContent = val;
+
+  const card = document.getElementById(`card-${idx}`);
+  card.dataset[channel] = val;
+
+  // Update swatch + CSS var on card
+  const r = parseInt(card.dataset.r);
+  const g = parseInt(card.dataset.g);
+  const b = parseInt(card.dataset.b);
+  const rgb = `rgb(${r},${g},${b})`;
+  card.style.setProperty('--swatch', rgb);
+  document.getElementById(`swatch-${idx}`).style.background = rgb;
+  document.getElementById(`hex-${idx}`).textContent =
+    `#${hex2(r)}${hex2(g)}${hex2(b)} · ${r}, ${g}, ${b}`;
+
+  // If this card is active — update live preview on hardware
+  if (activeIdx == idx) {
+    activeRGB = { r, g, b };
+    updateSummary();
+    highlightAllFloors(r, g, b);
+  }
+}
+
+// ── Highlight all floors with given colour ──────────────────
+async function highlightAllFloors(r, g, b) {
+  for (const floor of FLOORS) {
+    await api('/api/floor_highlight', { floor, colour: [r, g, b] });
+    setFloorStatus(floor, r, g, b);
+  }
+}
+
+function setFloorStatus(floor, r, g, b) {
+  const el  = document.getElementById(`floor-status-${floor}`);
+  const off = (r === 0 && g === 0 && b === 0);
+  el.textContent = off ? 'off' : 'lit';
+  el.className   = 'floor-status ' + (off ? 'off' : 'lit');
+}
+
+// ── Update right-panel summary ──────────────────────────────
+function updateSummary() {
+  const { r, g, b } = activeRGB;
+  document.getElementById('no-selection').style.display  = 'none';
+  document.getElementById('active-summary').style.display = 'flex';
+  document.getElementById('summary-swatch').style.background = `rgb(${r},${g},${b})`;
+  document.getElementById('summary-name').textContent = activeName;
+  document.getElementById('summary-rgb').textContent  =
+    `#${hex2(r)}${hex2(g)}${hex2(b)}  ·  ${r}, ${g}, ${b}`;
+}
+
+// ── Reload bridge config ────────────────────────────────────
+async function reloadConfig() {
+  const res = await api('/api/reload_config', {});
+  if (res.status === 'ok')
+    showToast(`Config reloaded — ${res.floors} floors, ${res.units} units`, 'ok');
+  else if (res.status === 'error')
+    showToast('⚠ Bridge offline — config not reloaded', 'error');
+}
+
+// ── Save preset to settings.yaml ────────────────────────────
+async function savePreset() {
+  if (!activeName) return;
+  const { r, g, b } = activeRGB;
+  const res = await api('/api/save_preset', { name: activeName, rgb: [r, g, b] });
+  showToast(res.status === 'ok'
+    ? `✓ "${activeName}" saved`
+    : '⚠ ' + res.message, res.status);
+  if (res.status === 'ok') await reloadConfig();
+}
+
+// ── Blackout all floors ──────────────────────────────────────
+async function doBlackout() {
+  const res = await api('/api/blackout', {});
+  FLOORS.forEach(f => setFloorStatus(f, 0, 0, 0));
+  // Deselect active card
+  document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active'));
+  activeIdx = null; activeName = null;
+  document.getElementById('no-selection').style.display  = 'block';
+  document.getElementById('active-summary').style.display = 'none';
+  document.getElementById('btn-save').disabled = true;
+  if (res.status !== 'ok') showToast('⚠ ' + res.message, 'error');
+}
+
+// ── Helpers ─────────────────────────────────────────────────
+const hex2 = v => v.toString(16).padStart(2, '0');
+
+async function api(endpoint, body) {
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    return await res.json();
+  } catch(e) {
+    return { status: 'error', message: e.message };
+  }
+}
+
+let toastTimer;
+function showToast(msg, status = 'ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${status === 'ok' ? 'ok' : 'error'}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = ''; }, 3000);
+}
+</script>
+</body>
+</html>
