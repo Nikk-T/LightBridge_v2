@@ -1,8 +1,28 @@
+# Channel mapping, floor mapping, status color data
+
+#Unit channel mapping (LED's asiigned to Apartments)
+# SLS960 addresses are 0-BASED, 8 serial channels per SLS960 unit
+# Serial 0 = 0-119, Serial 1 = 120-239 ... Serial 7 = 840-959
+
 unit_channel_map:
   A101: [0,1,2]
   A102: [3,4,5]
   A103: [6,7,8,9]
   B201: [120,121,122]
+  B202: [123,124]
+  B203: [125,126,127,128,129]
+  B204: [130,131]
+  B205: [132,133]
+  C301: [240,241,242]
+  C302: [243,244,245,246]
+  C303: [247,248,249,250]
+  D401: [360,361,362,363]
+  D402: [364,365,366,367]
+  D403: [368,369]
+
+#Floor channel mapping
+#LED range for each floor
+# Example: Floor 31 - LEDs 480-556 should be presented as 31: [480-556]
 
 floor_channel_map:
   1: [0, 8]
