@@ -77,6 +77,7 @@ WS_URL = "ws://0.0.0.0:8765"
 UNIT_CHANNEL_MAP = {}
 FLOOR_CHANNEL_MAP = {}
 STATUS_COLOUR = {}
+INTERVAL = 1000
 
 RECONNECT_DELAY = 5
 #---------------------------------------------------------
@@ -115,7 +116,8 @@ def load_settings(settings_path=SETTINGS_PATH):
 
         #Get colors
         status_colour = config.get("status_colour", {})
-        return status_colour
+        interval = config.get("interval", 1000)
+        return status_colour, interval
 
 sls = SLS960(SERIAL_BAUD)
 START_TIME = time.time()
@@ -270,7 +272,7 @@ async def main():
     log.info("Bridge starting — ws://0.0.0.0:8765")
 
     UNIT_CHANNEL_MAP, FLOOR_CHANNEL_MAP = load_maps()
-    STATUS_COLOUR = load_settings()
+    STATUS_COLOUR, INTERVAL = load_settings()
 
     log.info(f"Configuration loaded from file: {CONFIG_PATH}")
     log.info(f"{len(UNIT_CHANNEL_MAP)} units successfully loaded")

@@ -12,3 +12,6 @@ status_colour:
   2-Bed:     [228, 255, 50]
   1-Bed:     [125, 159, 24]
   Amenities: [255, 193, 0]
+
+# Fade-in // Fade-out time (from zero to full brightness) in milliseconds
+interval: 1000
