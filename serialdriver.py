@@ -127,10 +127,13 @@ class SLS960:
     def rgb_fadein(self, ch, r, g, b, interval=1000, step=10):
         if interval < 100:
             self.rgb(ch, r, g, b)
+            log.info(f"value {r, g, b} sent to {ch} with no fadein")
             return
 
         s = lambda v: int(v / step) if v > 0 else 5
-        self.send(cmd_rgb_fade(ch, r, interval/250, s(r), g, interval/250, s(g), b, interval/250, s(b)))
+        intervalToSend = int(interval / 250)
+        self.send(cmd_rgb_fade(ch, r, intervalToSend, s(r), g, intervalToSend, s(g), b, intervalToSend, s(b)))
+        log.info(f"value {r, g, b} sent to {ch} in {interval}ms, step {step}")
 
     def off(self, ch):
         self.send(cmd_off(ch))
