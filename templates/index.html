@@ -159,7 +159,7 @@
 
   /* Scenes */
   .scene-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
   }
   .scene-btn {
     background: transparent;
@@ -479,6 +479,9 @@
       <div class="scene-grid">
         <button class="scene-btn" onclick="setScene('idle')">Idle</button>
         <button class="scene-btn" onclick="setScene('presentation')">Present</button>
+        <button class="scene-btn" onclick="setScene('light_up')">Light Up</button>
+        <button class="scene-btn" onclick="setScene('fade_out')">Fade Out</button>
+        <button class="scene-btn" onclick="setScene('rainbow')">Rainbow</button>
         <button class="scene-btn blackout" onclick="doBlackout()">⬛ Blackout</button>
       </div>
     </div>

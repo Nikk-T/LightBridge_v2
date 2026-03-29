@@ -122,6 +122,7 @@ def load_settings(settings_path=SETTINGS_PATH):
 sls = SLS960(SERIAL_BAUD)
 START_TIME = time.time()
 
+#======= Async scenes ==========
 #Realistic light show
 async def realistic_idle_show():
 
@@ -175,6 +176,72 @@ async def realistic_idle_show():
         for uid in active_units:
             for ch in UNIT_CHANNEL_MAP.get(uid,[]):
                 sls.rgb_fadein(ch,0,0,0, INTERVAL)
+        raise
+
+# ============== Scene light up ====================
+async def _run_light_up():
+    log.info("Scene light_up started")
+    try:
+        for floor in sorted(FLOOR_CHANNEL_MAP.keys()):
+            sls.suspend()
+            for ch in FLOOR_CHANNEL_MAP[floor]:
+                sls.rgb_fadein(ch, 255, 220, 160, INTERVAL)
+            sls.resume()
+            await asyncio.sleep(0.2)
+        log.info("Scene light_up complete")
+    except asyncio.CancelledError:
+        sls.blackout()
+        log.info("Scene light_up interrupted")
+        raise
+
+#================ Scene fede out =====================
+async def _run_fade_out():
+    log.info("Scene fade_out started")
+    try:
+        for floor in sorted(FLOOR_CHANNEL_MAP.keys(), reverse=True):
+            sls.suspend()
+            for ch in FLOOR_CHANNEL_MAP[floor]:
+                sls.rgb_fadein(ch, 0, 0, 0, INTERVAL)
+            sls.resume()
+            await asyncio.sleep(0.2)
+        sls.blackout()
+        log.info("Scene fade_out complete")
+    except asyncio.CancelledError:
+        sls.blackout()
+        log.info("Scene fade_out interrupted")
+        raise
+
+#================ Rainbow run ========================
+async def _run_rainbow():
+    log.info("Scene rainbow started")
+    # Full rainbow: 0=red, 120=green, 240=blue (HSV hue degrees)
+    def hue_to_rgb(hue):
+        h = hue % 360
+        x = 1 - abs((h / 60) % 2 - 1)
+        if   h < 60:  r, g, b = 1,   x,   0
+        elif h < 120: r, g, b = x,   1,   0
+        elif h < 180: r, g, b = 0,   1,   x
+        elif h < 240: r, g, b = 0,   x,   1
+        elif h < 300: r, g, b = x,   0,   1
+        else:         r, g, b = 1,   0,   x
+        return int(r * 255), int(g * 255), int(b * 255)
+
+    try:
+        hue_offset = 0
+        floors = sorted(FLOOR_CHANNEL_MAP.keys())
+        while True:
+            sls.suspend()
+            for i, floor in enumerate(floors):
+                hue = (hue_offset + i * (360 // max(len(floors), 1))) % 360
+                r, g, b = hue_to_rgb(hue)
+                for ch in FLOOR_CHANNEL_MAP[floor]:
+                    sls.rgb_fadein(ch, r, g, b, INTERVAL)
+            sls.resume()
+            hue_offset = (hue_offset + 15) % 360
+            await asyncio.sleep(0.2)
+    except asyncio.CancelledError:
+        sls.blackout()
+        log.info("Scene rainbow interrupted")
         raise
 
 #Send MDP_NOP every 10 min to prevent 30-min SLS960 idle timeout.
@@ -243,6 +310,15 @@ async def handle(websocket):
                     if not idle_show_task or idle_show_task.done():
                         idle_show_task = asyncio.create_task(realistic_idle_show())
 
+                elif scene == "light_up":
+                    idle_show_task = asyncio.create_task(_run_light_up())
+
+                elif scene == "fade_out":
+                    idle_show_task = asyncio.create_task(_run_fade_out())
+
+                elif scene == "rainbow":
+
+                    idle_show_task = asyncio.create_task(_run_rainbow())
                 elif scene == "log_on":
                     pass
 
@@ -267,7 +343,7 @@ async def handle(websocket):
                 {"status":"error","message":str(e)}))
 
 async def main():
-    global UNIT_CHANNEL_MAP, FLOOR_CHANNEL_MAP, STATUS_COLOUR
+    global UNIT_CHANNEL_MAP, FLOOR_CHANNEL_MAP, STATUS_COLOUR, INTERVAL
 
     log.info("Bridge starting — ws://0.0.0.0:8765")
 

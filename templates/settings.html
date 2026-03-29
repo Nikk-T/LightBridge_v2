@@ -409,9 +409,10 @@ function onSlider(idx, channel, val) {
   }
 }
 
-// ── Highlight all floors with given colour ──────────────────
+// ── Highlight TEN First Floors with given colour, to do 10 last - change to slice(-10) ──────────────────
 async function highlightAllFloors(r, g, b) {
-  for (const floor of FLOORS) {
+  const previewFloors = FLOORS.slice(0, 10);
+  for (const floor of previewFloors) {
     await api('/api/floor_highlight', { floor, colour: [r, g, b] });
     setFloorStatus(floor, r, g, b);
   }
