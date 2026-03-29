@@ -291,7 +291,10 @@ async def handle(websocket):
                 log.info(f"floor_highlight: floor={floor}, channels={len(channels)}, colour={col}")
                 sls.suspend()
                 for ch in channels:
-                    sls.rgb_fadein(ch, *col, INTERVAL)
+                    if payload.get("instant", True):
+                        sls.rgb(ch, *col)
+                    else:
+                        sls.rgb_fadein(ch, *col, INTERVAL)
                 sls.resume()
 
             elif command == "set_scene":

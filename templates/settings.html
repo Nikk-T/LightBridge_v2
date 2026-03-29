@@ -200,7 +200,7 @@
   }
 
   /* Floor status list */
-  .floor-list { display: flex; flex-direction: column; gap: 6px; }
+  .floor-list { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; max-height: 280px; }
   .floor-row {
     display: flex; align-items: center; justify-content: space-between;
     padding: 7px 12px; border-radius: 4px;
@@ -253,8 +253,10 @@
 
 <header>
   <div class="logo">
-    <div class="logo-icon"></div>
-    <div class="logo-text">Light<span>Bridge</span></div>
+    <div style="display:flex;flex-direction:column;line-height:1.2;">
+      <span style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:3px;color:#fff;text-transform:lowercase;">taganov.co.uk</span>
+      <span style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:400;letter-spacing:4px;color:var(--muted);text-transform:uppercase;">bespoke automation</span>
+    </div>
   </div>
   <nav>
     <a href="/"         class="nav-link">Dashboard</a>
@@ -413,7 +415,7 @@ function onSlider(idx, channel, val) {
 async function highlightAllFloors(r, g, b) {
   const previewFloors = FLOORS.slice(0, 10);
   for (const floor of previewFloors) {
-    await api('/api/floor_highlight', { floor, colour: [r, g, b] });
+    await api('/api/floor_highlight', { floor, colour: [r, g, b], instant: true });
     setFloorStatus(floor, r, g, b);
   }
 }
