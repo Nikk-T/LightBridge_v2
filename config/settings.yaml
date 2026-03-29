@@ -6,12 +6,12 @@ status_colour:
   reserved:  [255, 200, 0]
   sold:      [255, 50, 50]
   'off':     [0, 0, 0]
-  Penthouse: [0, 30, 0]
+  penthouse: [0, 30, 0]
   4-Bed:     [150, 120, 20]
   3-Bed:     [100, 100, 0]
   2-Bed:     [228, 255, 50]
   1-Bed:     [125, 159, 24]
-  Amenities: [255, 193, 0]
+  amenities: [255, 193, 0]
 
 # Fade-in // Fade-out time (from zero to full brightness) in milliseconds
 interval: 1000

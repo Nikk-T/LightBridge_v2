@@ -1,5 +1,5 @@
 # Channel mapping, floor mapping, status color data
-
+# FOR TEST PURPOSES ONLY
 #Unit channel mapping (LED's asiigned to Apartments)
 # SLS960 addresses are 0-BASED, 8 serial channels per SLS960 unit
 # Serial 0 = 0-119, Serial 1 = 120-239 ... Serial 7 = 840-959
