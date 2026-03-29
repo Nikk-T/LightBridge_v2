@@ -153,7 +153,7 @@ async def realistic_idle_show():
                 b = base # - random.randint(20,70)
 
                 for ch in channels:
-                    sls.rgb_fadein(ch,r,g,b)
+                    sls.rgb_fadein(ch,r,g,b, INTERVAL)
                 duration = random.randint(2,20)
                 active_units[uid] = asyncio.get_event_loop().time() + duration
                 log.debug(f"Apartment {uid} ON for {duration}s")
@@ -163,7 +163,7 @@ async def realistic_idle_show():
             for uid in list(active_units.keys()):
                 if now >= active_units[uid]:
                     for ch in UNIT_CHANNEL_MAP.get(uid,[]):
-                        sls.rgb_fadein(ch,0,0,0)
+                        sls.rgb_fadein(ch,0,0,0, INTERVAL)
                     log.debug(f"Apartment {uid} OFF")
                     del active_units[uid]
             await asyncio.sleep(random.uniform(1,3))
@@ -174,7 +174,7 @@ async def realistic_idle_show():
         # turn off all active units
         for uid in active_units:
             for ch in UNIT_CHANNEL_MAP.get(uid,[]):
-                sls.rgb_fadein(ch,0,0,0)
+                sls.rgb_fadein(ch,0,0,0, INTERVAL)
         raise
 
 #Send MDP_NOP every 10 min to prevent 30-min SLS960 idle timeout.
@@ -206,7 +206,7 @@ async def handle(websocket):
                 status = payload.get("status", "off")
                 r, g, b = STATUS_COLOUR.get(status, (0,0,0))
                 for ch in UNIT_CHANNEL_MAP.get(uid, []):
-                    sls.rgb_fadein(ch, r, g, b)
+                    sls.rgb_fadein(ch, r, g, b, INTERVAL)
 
             elif command == "sync_all" or command == "highlight_group":
                 # SUSPEND first — all channels update simultaneously
@@ -214,7 +214,7 @@ async def handle(websocket):
                 for uid, status in payload.get("units", {}).items():
                     r, g, b = STATUS_COLOUR.get(status, (0,0,0))
                     for ch in UNIT_CHANNEL_MAP.get(uid, []):
-                        sls.rgb_fadein(ch, r, g, b)
+                        sls.rgb_fadein(ch, r, g, b, INTERVAL)
                 sls.resume() # All channels light at once — no flicker
 
             elif command == "floor_highlight":
@@ -224,7 +224,7 @@ async def handle(websocket):
                 log.info(f"floor_highlight: floor={floor}, channels={len(channels)}, colour={col}")
                 sls.suspend()
                 for ch in channels:
-                    sls.rgb_fadein(ch, *col)
+                    sls.rgb_fadein(ch, *col, INTERVAL)
                 sls.resume()
 
             elif command == "set_scene":
@@ -236,7 +236,7 @@ async def handle(websocket):
                     # Warm white across all channels
                     sls.suspend()
                     for ch in range(960):
-                        sls.rgb_fadein(ch, 255, 220, 160)
+                        sls.rgb_fadein(ch, 255, 220, 160, 0)
                     sls.resume()
 
                 elif scene == "presentation":
