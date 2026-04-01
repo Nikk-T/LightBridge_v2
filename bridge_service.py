@@ -148,13 +148,13 @@ async def realistic_idle_show():
                 channels = UNIT_CHANNEL_MAP.get(uid, [])
 
                 # warm white variation
-                base = random.randint(200,255)
-                r = base
-                g = base # - random.randint(5,40)
-                b = base # - random.randint(20,70)
+                #base = random.randint(200,255)
+                r = 255 #base
+                g = 200 #base # - random.randint(5,40)
+                b = 160 #base # - random.randint(20,70)
 
                 for ch in channels:
-                    sls.rgb_fadein(ch,r,g,b, INTERVAL)
+                    sls.rgb_fadein(ch,r,g,b, INTERVAL*2)
                 duration = random.randint(2,20)
                 active_units[uid] = asyncio.get_event_loop().time() + duration
                 log.debug(f"Apartment {uid} ON for {duration}s")
@@ -164,7 +164,7 @@ async def realistic_idle_show():
             for uid in list(active_units.keys()):
                 if now >= active_units[uid]:
                     for ch in UNIT_CHANNEL_MAP.get(uid,[]):
-                        sls.rgb_fadein(ch,0,0,0, INTERVAL)
+                        sls.rgb_fadein(ch,0,0,0, 0)
                     log.debug(f"Apartment {uid} OFF")
                     del active_units[uid]
             await asyncio.sleep(random.uniform(1,3))
