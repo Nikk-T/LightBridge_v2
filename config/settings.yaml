@@ -5,6 +5,7 @@ status_colour:
   selected:  [100, 150, 255]
   reserved:  [255, 200, 0]
   sold:      [255, 50, 50]
+  unavailable: [0, 0, 255]
   'off':     [0, 0, 0]
   penthouse: [0, 30, 0]
   4-Bed:     [150, 120, 20]
