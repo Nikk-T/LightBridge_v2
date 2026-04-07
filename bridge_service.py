@@ -347,6 +347,7 @@ async def handle(websocket):
 
 async def main():
     global UNIT_CHANNEL_MAP, FLOOR_CHANNEL_MAP, STATUS_COLOUR, INTERVAL
+    global idle_show_task
 
     log.info("Bridge starting — ws://0.0.0.0:8765")
 
@@ -359,6 +360,7 @@ async def main():
     log.info(f"{len(STATUS_COLOUR)} state color combinations successfully loaded")
 
     async with websockets.serve(handle, "0.0.0.0", 8765):
+        idle_show_task = asyncio.create_task(realistic_idle_show())
         await asyncio.gather(
             asyncio.Future(), # run forever
             keepalive_loop(), # prevent SLS960 idle timeout
